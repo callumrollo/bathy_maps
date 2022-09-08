@@ -105,6 +105,7 @@ def emod_subset(extent, path_to_emodnet, buffer=0.2):
         return patch_row(relevant_tiles, s_lim, n_lim, w_lim, e_lim)
     if len(np.unique(col_nums)) == 1:
         print("data in one column, patching lat")
+        return patch_col(relevant_tiles, s_lim, n_lim, w_lim, e_lim)
     
     print("Performing 2D patch")
     ds_rows = []
@@ -117,14 +118,3 @@ def emod_subset(extent, path_to_emodnet, buffer=0.2):
         next_tile_sub = next_tile.sel(lon=slice(w_lim, e_lim), lat=slice(s_lim, n_lim_no_overlap))
         ds_sub = xr.concat((next_tile_sub, ds_sub), dim="lat")
     return ds_sub
-
-
-if __name__ == '__main__':
-    S_lim = 57
-    N_lim = 70
-    W_lim = 7
-    E_lim = 23
-    emodnet_path = "/home/callum/Documents/datasets/bathy/emodnet"
-    extent = (S_lim, N_lim, W_lim, E_lim)
-    bathy = emod_subset(extent, emodnet_path, buffer=0)
-    print(bathy)
