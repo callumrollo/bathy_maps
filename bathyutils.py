@@ -94,6 +94,7 @@ def emod_subset(extent, path_to_emodnet, buffer=0.2):
         raise ValueError("No relevant tiles found. Check that your requested area is within the EMODnet tiles you have")
     print(f"Found {num_tiles} tiles with relevant data: {relevant_tiles}")
     if num_tiles == 1:
+        ds = xr.open_dataset(relevant_tiles[0])
         sub_tile = ds.sel(lon=slice(w_lim, e_lim), lat=slice(s_lim, n_lim))
         return sub_tile
     relevant_tiles.sort()
