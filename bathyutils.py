@@ -4,20 +4,20 @@ from pathlib import Path
 import os
 
 
-def gebco_subset(path_to_folder_str, extent, bathy_nc=False):
+def gebco_subset(path_to_folder_str, extent, buffer=5):
     """
     Extracts bathy data from a global GEBCO .nc file from an area specified by the use
     :param path_to_folder: string of path to the folder, specified by user
     :param extent: list with four items which are extent of desired geotiff [South, North, West, East]
-    e.g. [49. 50.5, -5, 2] (if using gebco or emodnet)
-    :return: numpy arrays of lon, lat and bathymetry
+    e.g. [49. 50.5, -5, 2] 
+    :return: xarray object of subset bathymetry
     """
     extent = list(extent)
     if extent[2]>180:
         extent[2] = extent[2] - 360
     if extent[3]>180:
         extent[3] = extent[3] - 360
-    print('Fetching GEBCO data...')
+    print('Loading GEBCO data...')
     path_to_folder = Path(path_to_folder_str)
     if path_to_folder.is_file():
         gebco = xr.open_dataset(path_to_folder)
@@ -27,14 +27,9 @@ def gebco_subset(path_to_folder_str, extent, bathy_nc=False):
             print('No netcdf files found in location supplied. Check that you pointed to a .nc file or a folder containing one. Aborting')
             exit(1)
         gebco = xr.open_dataset(path_to_gebco[0])
-    print("Subsettting GEBCO data")
-    subset = gebco.sel(lon=slice(extent[2], extent[3]), lat=slice(extent[0], extent[1]))
-    "print GEBCO bathy fetch successful"
-    if bathy_nc==True:
-        ## To save our bathymetry data
-        subset.to_netcdf(Path(os.getcwd())/'bathy_subset.nc')
-        print('bathy subset written at ' + str(Path(os.getcwd())/'bathy_subset.nc'))
-    return np.array(subset.lon), np.array(subset.lat), np.array(subset.elevation)
+    print("Subsetting GEBCO data")
+    subset = gebco.sel(lon=slice(extent[2]-buffer, extent[3]+buffer), lat=slice(extent[0]-buffer, extent[1]+buffer))
+    return subset
 
 
 
