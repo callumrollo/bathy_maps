@@ -41,6 +41,7 @@ def patch_row(tiles, s_lim, n_lim, w_lim, e_lim):
         wlim_no_overlap = np.max((w_lim, ds_sub.lon.max()))
         next_tile_sub = next_tile.sel(lon=slice(wlim_no_overlap, e_lim), lat=slice(s_lim, n_lim))
         ds_sub = xr.concat((ds_sub, next_tile_sub), dim="lon")
+        next_tile.close()
     return ds_sub
 
 
@@ -52,6 +53,7 @@ def patch_col(tiles, s_lim, n_lim, w_lim, e_lim):
         n_lim_no_overlap = np.min((n_lim, ds_sub.lat.min()))
         next_tile_sub = next_tile.sel(lon=slice(w_lim, e_lim), lat=slice(s_lim, n_lim_no_overlap))
         ds_sub = xr.concat((next_tile_sub, ds_sub), dim="lat")
+        next_tile.close()
     return ds_sub
 
 
@@ -84,6 +86,7 @@ def emod_subset(extent, path_to_emodnet, buffer=0.2):
         y2 = min(n_lim, ds.lat.max())
         if x1 < x2 and y1 < y2:
             relevant_tiles.append(tile)
+        ds.close()
     num_tiles = len(relevant_tiles)
     if num_tiles == 0:
         raise ValueError("No relevant tiles found. Check that your requested area is within the EMODnet tiles you have")
@@ -113,4 +116,5 @@ def emod_subset(extent, path_to_emodnet, buffer=0.2):
         n_lim_no_overlap = np.min((n_lim, ds_sub.lat.min()))
         next_tile_sub = next_tile.sel(lon=slice(w_lim, e_lim), lat=slice(s_lim, n_lim_no_overlap))
         ds_sub = xr.concat((next_tile_sub, ds_sub), dim="lat")
+        next_tile_sub.close()
     return ds_sub
